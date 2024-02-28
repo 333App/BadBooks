@@ -1,0 +1,33 @@
+version: "3.2"
+
+services:
+  db:
+    container_name: badbooks-postgresql
+    image: postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - real-network
+    restart: always
+    environment:
+      POSTGRES_DB: badbooks
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: passworld
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+
+  pgadmin:
+    container_name: badbooks-pgadmin
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: badbooks@app.com
+      PGADMIN_DEFAULT_PASSWORD: passworld
+    ports:
+      - "8081:80"
+    networks:
+      - real-network
+    restart: always
+
+networks:
+  real-network:
+    driver: bridge
