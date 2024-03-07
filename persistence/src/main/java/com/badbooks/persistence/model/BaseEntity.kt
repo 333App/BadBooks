@@ -2,10 +2,14 @@ package com.badbooks.persistence.model
 
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
+import jakarta.persistence.MappedSuperclass
+import jakarta.persistence.Temporal
+import jakarta.persistence.TemporalType
 import org.hibernate.annotations.GenericGenerator
 import java.time.LocalDateTime
 import java.util.*
 
+@MappedSuperclass
 open class BaseEntity{
     @Id
     @GeneratedValue(generator = "uuid2")
@@ -13,9 +17,11 @@ open class BaseEntity{
     open var id: UUID? = null
         get() = field
 
+    @Temporal(TemporalType.TIMESTAMP)
     open var createdDate: LocalDateTime = LocalDateTime.now()
         get() = field
 
+    @Temporal(TemporalType.TIMESTAMP)
     open var updatedDate: LocalDateTime = LocalDateTime.now()
         get() = field
         set(value) {

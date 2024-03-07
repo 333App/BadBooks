@@ -1,23 +1,29 @@
 package com.badbooks.persistence.model
 
+import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
+import jakarta.persistence.OneToOne
+import jakarta.persistence.Table
 import java.time.LocalDateTime
 import java.util.*
-
+@Entity
+@Table(name = "bookimages")
 data class BookImage(
 
-    var thumbnail: String?,
+    val thumbnail: String?,
 
-    var smallThumbnail: String?,
+    val smallThumbnail: String?,
 
-    var small: String?,
+    val small: String?,
 
-    var medium: String?,
+    val medium: String?,
 
-    var large: String?,
+    val large: String?,
 
-    var extreLarge: String?,
+    val extreLarge: String?,
 
-    var book: Book?
+    @OneToOne(fetch = FetchType.LAZY)
+    val book: Book?
 
 ) : BaseEntity() {
 
@@ -38,6 +44,8 @@ data class BookImage(
         super.updatedBy = builder.updatedBy
 
     }
+
+    constructor() : this(Builder())
 
     class Builder {
         var id: UUID = UUID.randomUUID()

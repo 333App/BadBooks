@@ -1,29 +1,44 @@
 package com.badbooks.persistence.model
 
 import com.badbooks.persistence.enumaration.Roles
+import jakarta.persistence.*
 import java.time.LocalDateTime
 import java.util.*
-import kotlin.collections.List
 
+@Entity
+@Table(name = "users")
 data class User(
 
     val userName: String,
 
-    var email: String,
+    val email: String,
 
-    var userPassword: String,
+    val userPassword: String,
 
-    var userRole: Roles,
+    @Enumerated(EnumType.STRING)
+    val userRole: Roles,
 
-    var book: List<Book>?,
+    @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    @JoinTable(
+        name = "user_followers",
+        joinColumns = [JoinColumn(name = "following_id", referencedColumnName = "id")],
+        inverseJoinColumns = [JoinColumn(name = "followers_id", referencedColumnName = "id")]
+    )
+    val followers: List<User>,
 
-    var isAccountNonExpired: Boolean,
+    @ManyToMany(mappedBy = "followers", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    val following: List<User>,
 
-    var isAccountNonLocked: Boolean,
+    @ManyToMany(mappedBy = "favoritesByUser", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    val book: List<Book>?,
 
-    var isCredentialsNonExpired: Boolean,
+    val isAccountNonExpired: Boolean,
 
-    var isEnabled: Boolean
+    val isAccountNonLocked: Boolean,
+
+    val isCredentialsNonExpired: Boolean,
+
+    val isEnabled: Boolean
 
 ) : BaseEntity() {
 
@@ -32,6 +47,8 @@ data class User(
         builder.email,
         builder.userPassword,
         builder.userRole,
+        builder.followers,
+        builder.following,
         builder.book,
         builder.isAccountNonExpired,
         builder.isAccountNonLocked,
@@ -44,6 +61,8 @@ data class User(
         super.createdBy = builder.createdBy
         super.updatedBy = builder.updatedBy
     }
+
+    constructor() : this(Builder())
 
     class Builder {
         var id: UUID = UUID.randomUUID()
@@ -59,6 +78,12 @@ data class User(
             private set
 
         var userRole: Roles = Roles.USER
+            private set
+
+        var followers: List<User> = ArrayList<User>()
+            private set
+
+        var following: List<User> = ArrayList<User>()
             private set
 
         var book: List<Book>? = null
@@ -93,6 +118,10 @@ data class User(
         fun userPassword(userPassword: String) = apply { this.userPassword = userPassword }
 
         fun userRole(userRole: Roles) = apply { this.userRole = userRole }
+
+        fun followers(followers: List<User>) = apply { this.followers = followers }
+
+        fun following(following: List<User>) = apply { this.following = following }
 
         fun book(book: List<Book>) = apply { this.book = book }
         fun createdDate(createdDate: LocalDateTime) = apply { this.createdDate = createdDate }

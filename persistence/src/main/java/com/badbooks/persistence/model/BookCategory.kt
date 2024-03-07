@@ -1,23 +1,34 @@
 package com.badbooks.persistence.model
 
+import com.fasterxml.jackson.annotation.JsonBackReference
+import jakarta.persistence.*
 import java.time.LocalDateTime
 import java.util.*
 
+@Entity
+@Table(name = "bookcategories")
 data class BookCategory(
 
-    var categoryName: String,
+    val categoryName: String,
 
-    var parentCategory: BookCategory?,
+    @JsonBackReference
+    @ManyToOne(cascade = [CascadeType.ALL])
+    @JoinColumn(name = "parentCategory")
+    val parentCategory: BookCategory?,
 
-    var subCategory: List<BookCategory>
+    @OneToMany(mappedBy = "parentCategory")
+    val subCategory: List<BookCategory>,
 
+    @ManyToMany(mappedBy = "bookcategory", fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    val books: List<Book>
 
 ) : BaseEntity() {
 
     constructor(builder: Builder) : this(
         builder.categoryName,
         builder.parentCategory,
-        builder.subCategory
+        builder.subCategory,
+        builder.books
 
     ) {
         super.id = builder.id
@@ -27,6 +38,7 @@ data class BookCategory(
         super.updatedBy = builder.updatedBy
     }
 
+    constructor() : this(Builder())
     class Builder {
         var id: UUID = UUID.randomUUID()
             private set
@@ -36,6 +48,9 @@ data class BookCategory(
         var parentCategory: BookCategory? = null
             private set
         var subCategory: List<BookCategory> = ArrayList<BookCategory>()
+            private set
+
+        var books: List<Book> = ArrayList<Book>()
             private set
 
         var createdDate: LocalDateTime = LocalDateTime.now()
@@ -56,6 +71,7 @@ data class BookCategory(
 
         fun parentCategory(parentCategory: BookCategory?) = apply { this.parentCategory = parentCategory }
 
+        fun books(books: List<Book>) = apply { this.books = books }
         fun subCategory(subCategory: List<BookCategory>) = apply { this.subCategory = subCategory }
         fun createdDate(createdDate: LocalDateTime) = apply { this.createdDate = createdDate }
         fun updatedDate(updatedDate: LocalDateTime) = apply { this.updatedDate = updatedDate }

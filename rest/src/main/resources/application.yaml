@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: BadBooks
+  config:
+    import:
+      - "application-persistence.yaml"
+  output:
+    ansi:
+      enabled: ALWAYS
+
+server:
+  port: 8080

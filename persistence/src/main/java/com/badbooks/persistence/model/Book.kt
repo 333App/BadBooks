@@ -1,31 +1,53 @@
 package com.badbooks.persistence.model
 
+import jakarta.persistence.*
 import java.time.LocalDateTime
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.List
 
+@Entity
+@Table(name = "books")
 data class Book(
 
-    var title: String,
+    val title: String,
 
-    var description: String?,
+    val description: String?,
 
-    var publisher: String?,
+    val publisher: String?,
 
-    var pageCount: Short?,
+    val pageCount: Short?,
 
-    var bookSaleLink: String?,
+    val bookSaleLink: String?,
 
-    var bookPdfLink: String?,
+    val bookPdfLink: String?,
 
-    var author: List<Author>,
+    @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    @JoinTable(
+        name = "author_books",
+        joinColumns = [JoinColumn(name = "book_id", referencedColumnName = "id")],
+        inverseJoinColumns = [JoinColumn(name = "author_id", referencedColumnName = "id")]
+    )
+    val author: List<Author>,
 
-    var bookCategory: List<BookCategory>,
+    @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    @JoinTable(
+        name = "category_books",
+        joinColumns = [JoinColumn(name = "book_id", referencedColumnName = "id")],
+        inverseJoinColumns = [JoinColumn(name = "book-category_id", referencedColumnName = "id")]
+    )
+    val bookCategory: List<BookCategory>,
 
-    var favoritesByUser: List<User>,
+    @ManyToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    @JoinTable(
+        name = "user_books",
+        joinColumns = [JoinColumn(name = "book_id", referencedColumnName = "id")],
+        inverseJoinColumns = [JoinColumn(name = "user_id", referencedColumnName = "id")]
+    )
+    val favoritesByUser: List<User>,
 
-    var bookImage: BookImage?
+    @OneToOne(mappedBy = "book", fetch = FetchType.LAZY)
+    val bookImage: BookImage?
 
 ) : BaseEntity() {
     constructor(builder: Builder) : this(
@@ -47,6 +69,7 @@ data class Book(
         super.updatedBy = builder.updatedBy
     }
 
+    constructor() : this(Builder())
     class Builder {
         var id: UUID = UUID.randomUUID()
             private set
